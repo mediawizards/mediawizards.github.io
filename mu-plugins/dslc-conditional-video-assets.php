@@ -20,32 +20,45 @@
  * initializer calls jQuery(...).mediaelementplayer(). If nothing on the page needs
  * video, WordPress correctly never loads the MediaElement.js library - which is good
  * for performance - but Live Composer's script still calls a jQuery plugin method
- * that was never registered, throwing the TypeError you saw in the console. WP
- * Rocket's "Delay JavaScript Execution" ships its own compatibility patch for this
- * exact scenario, but it listens for DOMContentLoaded, which has usually already
- * fired by the time delayed scripts run - so the patch frequently arrives too late
- * and the error still surfaces.
+ * that was never registered, throwing the TypeError you saw in the console.
+ *
+ * On this site the error is compounded by WP Rocket's "Delay JavaScript Execution"
+ * delaying jQuery itself (not just third-party scripts) until the visitor's first
+ * interaction (mouse move, scroll, tap). WP Rocket also predefines its own
+ * placeholder for window.jQuery ahead of time for compatibility, so a naive
+ * "if window.jQuery already exists, patch it once and stop" fix patches that
+ * placeholder and never notices when the real jQuery library replaces it outright
+ * the moment the visitor moves the mouse - which is exactly the delay between your
+ * two screenshots (clean console before any interaction, error right after).
+ * Because jQuery, client_plugins.min.js and client_frontend.min.js are all delayed
+ * independently of one another, there is no guarantee they resolve in the order
+ * Live Composer expects. Delaying your own page builder's core script and the
+ * jQuery it depends on is also why every other Live Composer interaction (menus,
+ * accordions, sliders, tabs) is unusable until that first interaction happens.
  *
  * WHAT THIS FILE DOES
- * 1. Prints a tiny stub in <head> that defines jQuery.fn.mediaelementplayer as a
- *    harmless no-op the instant jQuery becomes available. On sites where jQuery
- *    itself is delay-loaded (e.g. WP Rocket "Delay JavaScript Execution" applied
- *    to jquery-core), a simple polling loop leaves a small timing gap that Live
- *    Composer's script can win, so this uses an Object.defineProperty trap on
- *    window.jQuery instead: the patch is applied synchronously the instant
- *    something assigns window.jQuery, with no polling interval and therefore no
- *    race window, before any script that runs after jQuery (like Live Composer's)
- *    gets a chance to execute. If a real video is later loaded on the page,
- *    MediaElement.js overwrites this no-op with its real implementation, so
- *    nothing is lost. A polling fallback is kept for the rare case where
- *    Object.defineProperty on window.jQuery isn't possible.
- * 2. Detects, server-side, whether the current page actually contains a video
+ * 1. Excludes jQuery, jQuery Migrate, and Live Composer's own client_plugins.min.js
+ *    / client_frontend.min.js from WP Rocket's Delay JS queue, via the
+ *    rocket_delay_js_exclusions filter. This is the real fix: your page builder's
+ *    own core script and the library it depends on load in normal (still
+ *    deferred/non-render-blocking) order like the rest of the page, instead of
+ *    being gated behind an arbitrary "first interaction" event. Delay JS remains
+ *    fully in effect for any genuinely third-party script (chat widgets, ads,
+ *    analytics) that doesn't gate your own UI.
+ * 2. Prints a tiny stub in <head>, as a second line of defence, that defines
+ *    jQuery.fn.mediaelementplayer as a harmless no-op via an Object.defineProperty
+ *    trap on window.jQuery - it patches whatever is already there immediately AND
+ *    keeps listening, so it also catches a placeholder later being replaced by the
+ *    real library, with no polling interval and therefore no race window. If a
+ *    real video is later loaded on the page, MediaElement.js overwrites this no-op
+ *    with its real implementation, so nothing is lost.
+ * 3. Detects, server-side, whether the current page actually contains a video
  *    (Live Composer background-video module, a core <video>/[video] block, or a
  *    YouTube/Vimeo URL/embed) and dequeues every mediaelement-related script/style
  *    when it doesn't. This keeps those files (and any future update to Live
  *    Composer that starts loading them unconditionally) off pages with no video,
  *    protecting your PageSpeed Insights score.
- * 3. Skips the dequeue step for logged-in editors and for Live Composer's own
+ * 4. Skips the dequeue step for logged-in editors and for Live Composer's own
  *    builder/editing mode, so building a section with a video inside the page
  *    builder is never affected - only what anonymous visitors receive is trimmed.
  */
@@ -65,20 +78,41 @@ function dslc_print_mediaelementplayer_stub() {
 		return;
 	}
 	?>
-	<script id="dslc-mediaelement-stub">(function(w){function patch(j){if(j&&j.fn&&!j.fn.mediaelementplayer){j.fn.mediaelementplayer=function(){return this;};}}if(w.jQuery){patch(w.jQuery);return;}var cur;try{Object.defineProperty(w,'jQuery',{configurable:true,enumerable:true,get:function(){return cur;},set:function(v){cur=v;patch(v);}});}catch(e){var n=0,t=setInterval(function(){if(w.jQuery){patch(w.jQuery);clearInterval(t);}else if(++n>400){clearInterval(t);}},25);}})(window);</script>
+	<script id="dslc-mediaelement-stub">(function(w){function patch(j){if(j&&j.fn&&!j.fn.mediaelementplayer){j.fn.mediaelementplayer=function(){return this;};}}var cur=w.jQuery;patch(cur);try{Object.defineProperty(w,'jQuery',{configurable:true,enumerable:true,get:function(){return cur;},set:function(v){cur=v;patch(v);}});}catch(e){var n=0,t=setInterval(function(){var j=w.jQuery;if(j){patch(j);if(j.fn&&j.fn.mediaelementplayer){clearInterval(t);return;}}if(++n>400){clearInterval(t);}},25);}})(window);</script>
 	<?php
 }
 
 /**
- * Keep the stub script out of WP Rocket's "Delay JavaScript Execution" queue, and
- * (when it does get enqueued because a video is actually present) keep the real
- * mediaelement library out of that queue too, so it can't race Live Composer's
- * own front-end script.
+ * Stop WP Rocket's "Delay JavaScript Execution" from gating jQuery and Live
+ * Composer's own front-end scripts behind a user-interaction event.
+ *
+ * The console error keeps recurring even with the stub above because WP Rocket
+ * predefines its own placeholder for window.jQuery for compatibility purposes.
+ * That placeholder is truthy, so a naive "if window.jQuery already exists, patch
+ * it and stop" check patches the placeholder and never notices when the real
+ * jQuery library later replaces it outright - which is exactly what happens the
+ * moment the visitor moves the mouse and WP Rocket finally loads the real
+ * jquery-core, client_plugins.min.js and client_frontend.min.js together.
+ * client_frontend.min.js calls jQuery(...).mediaelementplayer() unconditionally
+ * on document ready, so if it and jQuery are delayed independently of one
+ * another there is always a risk they resolve out of the order Live Composer
+ * expects. Delaying your page builder's own core script and the jQuery it
+ * depends on - behind an arbitrary "first mouse move / scroll / tap" event -
+ * is also why every other Live Composer interaction (menus, accordions,
+ * sliders, tabs) is unusable until that first interaction happens. The
+ * correct fix is to stop delaying these specific files: let them load in
+ * normal (still deferred/non-render-blocking) order like the rest of a
+ * typical page, and reserve "Delay JS" for genuinely third-party scripts
+ * (chat widgets, ads, analytics) that don't gate your own UI.
  */
 add_filter( 'rocket_delay_js_exclusions', 'dslc_rocket_delay_js_exclusions' );
 function dslc_rocket_delay_js_exclusions( $exclusions ) {
 	$exclusions[] = 'dslc-mediaelement-stub';
 	$exclusions[] = 'mediaelement';
+	$exclusions[] = 'jquery.min.js';
+	$exclusions[] = 'jquery-migrate.min.js';
+	$exclusions[] = 'live-composer-page-builder/js/dist/client_plugins.min.js';
+	$exclusions[] = 'live-composer-page-builder/js/dist/client_frontend.min.js';
 	return $exclusions;
 }
 
