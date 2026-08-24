@@ -115,6 +115,27 @@ function dslc_rocket_delay_js_exclusions( $exclusions ) {
 	$exclusions[] = 'dslc-mediaelement-stub';
 	$exclusions[] = 'mediaelement';
 
+	// Hardcoded baseline: these five files are the confirmed real dependency
+	// chain, verified directly against this site's own page source across
+	// several rounds of fixes (jQuery, jQuery Migrate, imagesLoaded,
+	// client_plugins.min.js, client_frontend.min.js). Listing them directly
+	// means exclusion for these specific files no longer depends on
+	// wp_scripts()->registered being fully populated at whatever moment WP
+	// Rocket happens to apply this filter - dslc-main-js (client_frontend.min.js)
+	// was observed dropping out of the dynamic scan below after a separate
+	// mu-plugin (denwix-cls-divider-fix-1.php) stripped a stray `async`
+	// attribute from it, which most likely removed a signal WP Rocket was
+	// using on its own to already leave that one script alone.
+	$exclusions[] = 'jquery.min.js';
+	$exclusions[] = 'jquery-migrate.min.js';
+	$exclusions[] = 'imagesloaded.min.js';
+	$exclusions[] = 'client_plugins.min.js';
+	$exclusions[] = 'client_frontend.min.js';
+	$exclusions[] = 'dslc-main-js';
+	$exclusions[] = 'dslc-plugins-js';
+
+	// Dynamic scan kept as a second layer, to automatically catch anything
+	// new WordPress core or Live Composer adds later.
 	$path_patterns = array(
 		'/wp-includes/js/',                             // WordPress core's own bundled JS: jQuery, jQuery Migrate, imagesLoaded, Masonry, etc.
 		'/wp-content/lib/live-composer-page-builder/',   // Live Composer's own bundled scripts.
