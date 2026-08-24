@@ -84,66 +84,55 @@ function dslc_print_mediaelementplayer_stub() {
 
 /**
  * Stop WP Rocket's "Delay JavaScript Execution" from gating jQuery, Live
- * Composer's own front-end scripts, and everything THEY depend on, behind a
- * user-interaction event.
+ * Composer's own front-end scripts, and the WordPress-core helper libraries
+ * Live Composer's modules call into, behind a user-interaction event.
  *
- * The console error keeps recurring, and keeps moving to a different Live
+ * The console error kept recurring, and kept moving to a different Live
  * Composer feature each time (first mediaelementplayer, then imagesLoaded),
- * because WP Rocket delays each script independently. Excluding only jQuery
- * and Live Composer's two files just moves the same race one level deeper:
- * client_frontend.min.js now runs undelayed and immediately calls things like
- * jQuery(...).imagesLoaded() for its carousel module, but wp-includes' own
- * imagesloaded.min.js is still delay-gated behind the first interaction, so
- * it crashes exactly like mediaelementplayer did. Patching one dependency at
- * a time after each new error report doesn't end - whatever library the next
- * Live Composer module needs (masonry, a lightbox script, anything) would
- * fail the same way the moment that module appears on a page.
+ * because WP Rocket delays each script independently. Walking WordPress's
+ * *declared* script dependency tree (an earlier version of this function)
+ * turned out not to be enough: Live Composer enqueues imagesloaded-js as a
+ * sibling script alongside its own dslc-main-js/dslc-plugins-js, not as a
+ * declared `deps` entry of either - so it never showed up in that tree, and
+ * stayed delay-gated while client_frontend.min.js, now undelayed, called
+ * jQuery(...).imagesLoaded() on it immediately. There is no guarantee every
+ * library a future Live Composer module needs (masonry, a lightbox, a
+ * carousel engine) will be declared as a proper dependency either.
  *
- * Instead of hardcoding filenames, this walks WordPress's own registered
- * script dependency tree for Live Composer's two script handles
- * (dslc-main-js = client_frontend.min.js, dslc-plugins-js =
- * client_plugins.min.js) and excludes every file in that chain - jQuery,
- * jQuery Migrate, imagesLoaded, and anything future Live Composer updates
- * add - automatically, using the same dependency graph WordPress already
- * enqueues them with. Delay JS remains fully active for anything else on the
- * page (chat widgets, ads, analytics) that isn't part of your page builder's
- * own required chain.
+ * So instead of walking declared dependencies, this excludes by WHERE a
+ * script physically lives: anything WordPress core ships under
+ * /wp-includes/js/ (jQuery, jQuery Migrate, imagesLoaded, Masonry, and any
+ * other core utility script a page-builder module might reach for), plus
+ * anything Live Composer ships under its own plugin folder. Both groups are
+ * small, first-party, and load together whether or not Live Composer bothers
+ * to declare the dependency correctly. Delay JS remains fully active for
+ * everything else - third-party chat widgets, ads, analytics, anything
+ * living outside those two folders - which is what that feature is actually
+ * meant to target.
  */
 add_filter( 'rocket_delay_js_exclusions', 'dslc_rocket_delay_js_exclusions', 20 );
 function dslc_rocket_delay_js_exclusions( $exclusions ) {
 	$exclusions[] = 'dslc-mediaelement-stub';
 	$exclusions[] = 'mediaelement';
 
-	$scripts = wp_scripts();
-	$seen    = array();
-	$files   = array();
+	$path_patterns = array(
+		'/wp-includes/js/',                             // WordPress core's own bundled JS: jQuery, jQuery Migrate, imagesLoaded, Masonry, etc.
+		'/wp-content/lib/live-composer-page-builder/',   // Live Composer's own bundled scripts.
+	);
 
-	foreach ( array( 'dslc-main-js', 'dslc-plugins-js' ) as $handle ) {
-		$files = array_merge( $files, dslc_collect_script_dep_files( $handle, $scripts, $seen ) );
+	foreach ( wp_scripts()->registered as $item ) {
+		if ( empty( $item->src ) ) {
+			continue;
+		}
+		foreach ( $path_patterns as $pattern ) {
+			if ( false !== strpos( (string) $item->src, $pattern ) ) {
+				$exclusions[] = basename( (string) $item->src );
+				break;
+			}
+		}
 	}
 
-	return array_values( array_unique( array_merge( $exclusions, $files ) ) );
-}
-
-/**
- * Recursively collect the filename of $handle and every script it depends
- * on (read-only - never touches $scripts->to_do/done, unlike calling
- * WP_Scripts::all_deps() directly on the live global instance would).
- */
-function dslc_collect_script_dep_files( $handle, $scripts, &$seen ) {
-	if ( isset( $seen[ $handle ] ) || empty( $scripts->registered[ $handle ] ) ) {
-		return array();
-	}
-	$seen[ $handle ] = true;
-
-	$item  = $scripts->registered[ $handle ];
-	$files = $item->src ? array( basename( (string) $item->src ) ) : array();
-
-	foreach ( (array) $item->deps as $dep_handle ) {
-		$files = array_merge( $files, dslc_collect_script_dep_files( $dep_handle, $scripts, $seen ) );
-	}
-
-	return $files;
+	return array_values( array_unique( $exclusions ) );
 }
 
 /**
