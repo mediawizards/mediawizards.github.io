@@ -27,12 +27,18 @@
  * and the error still surfaces.
  *
  * WHAT THIS FILE DOES
- * 1. Prints a tiny (~350 byte), render-blocking, non-deferred stub in <head> that
- *    defines jQuery.fn.mediaelementplayer as a harmless no-op the instant jQuery
- *    becomes available - guaranteed to exist before Live Composer's (possibly
- *    delayed) script runs, permanently eliminating the console error. If a real
- *    video is later loaded on the page, MediaElement.js overwrites this no-op with
- *    its real implementation, so nothing is lost.
+ * 1. Prints a tiny stub in <head> that defines jQuery.fn.mediaelementplayer as a
+ *    harmless no-op the instant jQuery becomes available. On sites where jQuery
+ *    itself is delay-loaded (e.g. WP Rocket "Delay JavaScript Execution" applied
+ *    to jquery-core), a simple polling loop leaves a small timing gap that Live
+ *    Composer's script can win, so this uses an Object.defineProperty trap on
+ *    window.jQuery instead: the patch is applied synchronously the instant
+ *    something assigns window.jQuery, with no polling interval and therefore no
+ *    race window, before any script that runs after jQuery (like Live Composer's)
+ *    gets a chance to execute. If a real video is later loaded on the page,
+ *    MediaElement.js overwrites this no-op with its real implementation, so
+ *    nothing is lost. A polling fallback is kept for the rare case where
+ *    Object.defineProperty on window.jQuery isn't possible.
  * 2. Detects, server-side, whether the current page actually contains a video
  *    (Live Composer background-video module, a core <video>/[video] block, or a
  *    YouTube/Vimeo URL/embed) and dequeues every mediaelement-related script/style
@@ -59,7 +65,7 @@ function dslc_print_mediaelementplayer_stub() {
 		return;
 	}
 	?>
-	<script id="dslc-mediaelement-stub">(function(w){function s(){var j=w.jQuery;if(j&&j.fn&&!j.fn.mediaelementplayer){j.fn.mediaelementplayer=function(){return this;};}}s();if(w.jQuery){return;}var n=0,t=setInterval(function(){s();if(w.jQuery||++n>200){clearInterval(t);}},25);})(window);</script>
+	<script id="dslc-mediaelement-stub">(function(w){function patch(j){if(j&&j.fn&&!j.fn.mediaelementplayer){j.fn.mediaelementplayer=function(){return this;};}}if(w.jQuery){patch(w.jQuery);return;}var cur;try{Object.defineProperty(w,'jQuery',{configurable:true,enumerable:true,get:function(){return cur;},set:function(v){cur=v;patch(v);}});}catch(e){var n=0,t=setInterval(function(){if(w.jQuery){patch(w.jQuery);clearInterval(t);}else if(++n>400){clearInterval(t);}},25);}})(window);</script>
 	<?php
 }
 
