@@ -8,9 +8,26 @@
   collide with any Live Composer / dslc- class names. No jQuery, no
   MediaElement, no external requests beyond what's already on the page.
 
-  TO DO: slides 2-5 below are placeholder reviews (realistic sounding, not
-  real quotes) - swap in real client feedback when you have it. Slide 1 is
-  your existing real review (Micheal Clauri), kept as-is.
+  TO DO: slides 3-5 below are placeholder reviews (realistic sounding, not
+  real quotes) - swap in real client feedback when you have it. Slides 1-2
+  are your existing real reviews (Micheal Clauri, Elena Robert), kept as-is.
+
+  SIZING/COLOR: matched exactly where I had real evidence -
+    - border-radius: 4px and padding: 25px are the Live Composer plugin's
+      own confirmed CSS for .dslc-testimonial-main, taken directly from its
+      source (not a guess).
+    - background: #8417dd is your own confirmed site brand purple (the same
+      color your "Free SEO Consultation" / "Request a Free Quote" buttons
+      use), used as the closest solid match I have real evidence for.
+    - The ORIGINAL box's exact font-size and precise background hex are set
+      via WordPress Customizer custom CSS, which lives in your database, not
+      in any file I have access to - I could not find them in the page
+      source or plugin/theme files despite a thorough search. If the color
+      or text size looks even slightly off next to the old box, the fastest
+      fix: right-click the OLD testimonial box (before you delete it) ->
+      Inspect -> Styles panel -> read the computed background-color and the
+      .dslc-testimonial-quote font-size, and tell me those two numbers -
+      I'll match them exactly in one edit.
 -->
 <div class="dnx-testi" id="dnx-testi-1">
   <div class="dnx-testi-track">
@@ -23,8 +40,8 @@
 
     <div class="dnx-testi-slide" data-i="1">
       <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
-      <p class="dnx-testi-quote">&ldquo;Our organic traffic doubled within three months. The team actually explains what they're doing instead of just handing over a report.&rdquo;</p>
-      <p class="dnx-testi-name">Sarah Bennett<span>Marketing Director</span></p>
+      <p class="dnx-testi-quote">&ldquo;They helped us put our business online and unlock our full potential. The process was seamless, and the results speak for themselves.&rdquo;</p>
+      <p class="dnx-testi-name">Elena Robert<span>CEO of Vanguard Consulting</span></p>
     </div>
 
     <div class="dnx-testi-slide" data-i="2">
@@ -57,19 +74,18 @@
 
 <style>
 .dnx-testi{position:relative;width:100%;max-width:900px;margin:0 auto;min-height:260px}
-.dnx-testi-track{position:relative;width:100%;min-height:260px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a21caf);padding:36px 40px;color:#fff;box-sizing:border-box}
-.dnx-testi-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 40px;box-sizing:border-box;opacity:0;visibility:hidden;transition:opacity .5s ease}
+.dnx-testi-track{position:relative;width:100%;min-height:260px;border-radius:4px;background:#8417dd;padding:25px;color:#fff;box-sizing:border-box;overflow:hidden}
+.dnx-testi-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:25px;box-sizing:border-box;opacity:0;visibility:hidden;transition:opacity .5s ease}
 .dnx-testi-slide.is-active{position:relative;opacity:1;visibility:visible}
 .dnx-testi-icon{width:28px;height:28px;margin-bottom:14px;opacity:.9}
 .dnx-testi-quote{margin:0 0 20px;font-size:19px;line-height:1.5;max-width:640px}
-.dnx-testi-name{margin:0;font-weight:700;font-size:16px}
-.dnx-testi-name span{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:2px}
+.dnx-testi-name{margin:0;font-weight:700;font-size:16px;line-height:1}
+.dnx-testi-name span{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:6px;line-height:1.1}
 .dnx-testi-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
 .dnx-testi-dot{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:#d4d4d8;cursor:pointer;transition:background .3s ease,transform .3s ease}
-.dnx-testi-dot.is-active{background:#7c3aed;transform:scale(1.25)}
+.dnx-testi-dot.is-active{background:#8417dd;transform:scale(1.25)}
 @media(max-width:640px){
-  .dnx-testi-track,.dnx-testi-slide{padding:28px 24px}
-  .dnx-testi-quote{font-size:17px}
+  .dnx-testi-track,.dnx-testi-slide{padding:20px 18px}
 }
 @media(prefers-reduced-motion:reduce){
   .dnx-testi-slide{transition:none}
