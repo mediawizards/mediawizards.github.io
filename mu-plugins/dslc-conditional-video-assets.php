@@ -157,6 +157,37 @@ function dslc_rocket_delay_js_exclusions( $exclusions ) {
 }
 
 /**
+ * Cancel out a conflicting instruction found in the theme's own functions.php:
+ *
+ *   add_filter('rocket_delay_js_scripts', function($scripts) {
+ *       $scripts[] = 'dslc';
+ *       $scripts[] = 'front-end';
+ *       $scripts[] = 'live-composer';
+ *       return $scripts;
+ *   });
+ *
+ * That code adds exactly the same three script patterns this file spends its
+ * whole effort excluding from Delay JS, to an inclusion-style list - the
+ * opposite instruction, for the same scripts, live in the theme at the same
+ * time as this plugin's exclusion. Whether `rocket_delay_js_scripts` is a
+ * genuine (if undocumented) WP Rocket filter or a filter name that was never
+ * actually correct is not something that can be confirmed without a live
+ * WP Rocket source check this session doesn't have access to - but removing
+ * these three entries here is safe regardless of which is true: if the
+ * filter is real, this closes a direct conflict with the exclusions above;
+ * if it's inert, this line does nothing. Priority 999 so it always runs
+ * after the theme's default-priority (10) registration, filter registration
+ * order in PHP being irrelevant - only the priority order matters.
+ */
+add_filter( 'rocket_delay_js_scripts', 'dslc_remove_conflicting_delay_js_scripts', 999 );
+function dslc_remove_conflicting_delay_js_scripts( $scripts ) {
+	if ( ! is_array( $scripts ) ) {
+		return $scripts;
+	}
+	return array_values( array_diff( $scripts, array( 'dslc', 'front-end', 'live-composer' ) ) );
+}
+
+/**
  * Dequeue MediaElement.js / wp-mediaelement (script + style) on any page that has
  * no detectable video, so they are only ever downloaded when actually needed.
  */
