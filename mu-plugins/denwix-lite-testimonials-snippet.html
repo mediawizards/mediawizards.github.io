@@ -73,19 +73,20 @@
 </div>
 
 <style>
-.dnx-testi{position:relative;width:100%;max-width:1200px;margin:0 auto;min-height:190px}
-.dnx-testi-track{position:relative;width:100%;min-height:190px;border-radius:16px;background:#8417dd;padding:22px 48px;color:#fff;box-sizing:border-box;overflow:hidden}
-.dnx-testi-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 48px;box-sizing:border-box;opacity:0;visibility:hidden;transition:opacity .5s ease}
+.dnx-testi{position:relative;width:100%;max-width:1200px;margin:0 auto;min-height:150px}
+.dnx-testi-track{position:relative;width:100%;min-height:150px;border-radius:16px;background:#8417dd;padding:20px 56px;color:#fff;box-sizing:border-box;overflow:hidden;box-shadow:0 10px 30px -12px rgba(132,23,221,.45)}
+.dnx-testi-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 56px;box-sizing:border-box;opacity:0;visibility:hidden;transition:opacity .5s ease}
 .dnx-testi-slide.is-active{position:relative;opacity:1;visibility:visible}
-.dnx-testi-icon{width:24px;height:24px;margin-bottom:10px;opacity:.9}
-.dnx-testi-quote{margin:0 0 14px;font-size:19px;line-height:1.5;max-width:760px}
-.dnx-testi-name{margin:0;font-weight:700;font-size:16px;line-height:1}
-.dnx-testi-name span{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:6px;line-height:1.1}
-.dnx-testi-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
-button.dnx-testi-dot{-webkit-appearance:none;appearance:none;box-sizing:border-box;display:inline-block;width:8px!important;height:8px!important;min-width:0;padding:0!important;margin:0;border:0!important;border-radius:50%!important;background:#d4d4d8!important;box-shadow:none;cursor:pointer;transition:background .3s ease,transform .3s ease}
-button.dnx-testi-dot.is-active{background:#8417dd!important;transform:scale(1.25)}
+.dnx-testi-icon{width:34px;height:34px;margin-bottom:10px;opacity:.95}
+.dnx-testi-quote{margin:0 0 12px;font-size:19px;line-height:1.5;max-width:760px;font-weight:500}
+.dnx-testi-name{margin:0;font-weight:700;font-size:16px;line-height:1;letter-spacing:.2px}
+.dnx-testi-name span{display:block;font-weight:400;font-size:13px;opacity:.75;margin-top:5px;line-height:1.1}
+.dnx-testi-dots{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:14px}
+button.dnx-testi-dot{-webkit-appearance:none;appearance:none;box-sizing:border-box;display:inline-block;width:11px!important;height:11px!important;min-width:0;padding:0!important;margin:0;border:0!important;border-radius:50%!important;background:#d4d4d8!important;box-shadow:none;cursor:pointer;transition:background .3s ease,transform .3s ease}
+button.dnx-testi-dot.is-active{background:#8417dd!important;transform:scale(1.2)}
 @media(max-width:640px){
-  .dnx-testi-track,.dnx-testi-slide{padding:18px 22px}
+  .dnx-testi-track,.dnx-testi-slide{padding:20px 26px}
+  .dnx-testi-icon{width:28px;height:28px}
 }
 @media(prefers-reduced-motion:reduce){
   .dnx-testi-slide{transition:none}
