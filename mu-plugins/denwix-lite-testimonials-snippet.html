@@ -1,0 +1,128 @@
+<!--
+  Denwix Lite Testimonials — paste this whole block into a Live Composer
+  "HTML" module, in the exact spot the old testimonial carousel module sat.
+  Delete the old testimonial module afterward (or just leave this one active
+  and remove/hide the old one - your call).
+
+  Self-contained: its own CSS and JS, scoped under .dnx-testi so it cannot
+  collide with any Live Composer / dslc- class names. No jQuery, no
+  MediaElement, no external requests beyond what's already on the page.
+
+  TO DO: slides 2-5 below are placeholder reviews (realistic sounding, not
+  real quotes) - swap in real client feedback when you have it. Slide 1 is
+  your existing real review (Micheal Clauri), kept as-is.
+-->
+<div class="dnx-testi" id="dnx-testi-1">
+  <div class="dnx-testi-track">
+
+    <div class="dnx-testi-slide is-active" data-i="0">
+      <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      <p class="dnx-testi-quote">&ldquo;The website framework Denwix configured for us is incredibly fast, clean, and brought our layout vision to life effortlessly.&rdquo;</p>
+      <p class="dnx-testi-name">Micheal Clauri<span>Freelancer</span></p>
+    </div>
+
+    <div class="dnx-testi-slide" data-i="1">
+      <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      <p class="dnx-testi-quote">&ldquo;Our organic traffic doubled within three months. The team actually explains what they're doing instead of just handing over a report.&rdquo;</p>
+      <p class="dnx-testi-name">Sarah Bennett<span>Marketing Director</span></p>
+    </div>
+
+    <div class="dnx-testi-slide" data-i="2">
+      <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      <p class="dnx-testi-quote">&ldquo;Fast turnaround, clear communication, and a site that actually loads instantly on mobile. Exactly what we needed.&rdquo;</p>
+      <p class="dnx-testi-name">David Okonkwo<span>Small Business Owner</span></p>
+    </div>
+
+    <div class="dnx-testi-slide" data-i="3">
+      <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      <p class="dnx-testi-quote">&ldquo;We came in skeptical about SEO agencies after a bad experience elsewhere. Denwix actually moved the needle, with proof.&rdquo;</p>
+      <p class="dnx-testi-name">Priya Nair<span>Founder, Retail Startup</span></p>
+    </div>
+
+    <div class="dnx-testi-slide" data-i="4">
+      <svg class="dnx-testi-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      <p class="dnx-testi-quote">&ldquo;Professional from the first call to launch. They kept the site lightweight without sacrificing how it looks.&rdquo;</p>
+      <p class="dnx-testi-name">Tom Reyes<span>Agency Partner</span></p>
+    </div>
+
+  </div>
+  <div class="dnx-testi-dots" role="tablist" aria-label="Client reviews">
+    <button class="dnx-testi-dot is-active" type="button" role="tab" aria-selected="true" aria-label="Review 1" data-i="0"></button>
+    <button class="dnx-testi-dot" type="button" role="tab" aria-selected="false" aria-label="Review 2" data-i="1"></button>
+    <button class="dnx-testi-dot" type="button" role="tab" aria-selected="false" aria-label="Review 3" data-i="2"></button>
+    <button class="dnx-testi-dot" type="button" role="tab" aria-selected="false" aria-label="Review 4" data-i="3"></button>
+    <button class="dnx-testi-dot" type="button" role="tab" aria-selected="false" aria-label="Review 5" data-i="4"></button>
+  </div>
+</div>
+
+<style>
+.dnx-testi{position:relative;width:100%;max-width:900px;margin:0 auto;min-height:260px}
+.dnx-testi-track{position:relative;width:100%;min-height:260px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a21caf);padding:36px 40px;color:#fff;box-sizing:border-box}
+.dnx-testi-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 40px;box-sizing:border-box;opacity:0;visibility:hidden;transition:opacity .5s ease}
+.dnx-testi-slide.is-active{position:relative;opacity:1;visibility:visible}
+.dnx-testi-icon{width:28px;height:28px;margin-bottom:14px;opacity:.9}
+.dnx-testi-quote{margin:0 0 20px;font-size:19px;line-height:1.5;max-width:640px}
+.dnx-testi-name{margin:0;font-weight:700;font-size:16px}
+.dnx-testi-name span{display:block;font-weight:400;font-size:14px;opacity:.75;margin-top:2px}
+.dnx-testi-dots{display:flex;justify-content:center;gap:8px;margin-top:16px}
+.dnx-testi-dot{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:#d4d4d8;cursor:pointer;transition:background .3s ease,transform .3s ease}
+.dnx-testi-dot.is-active{background:#7c3aed;transform:scale(1.25)}
+@media(max-width:640px){
+  .dnx-testi-track,.dnx-testi-slide{padding:28px 24px}
+  .dnx-testi-quote{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dnx-testi-slide{transition:none}
+}
+</style>
+
+<script>
+(function(){
+  var root = document.getElementById('dnx-testi-1');
+  if (!root || root.__dnxInit) { return; }
+  root.__dnxInit = true;
+
+  var slides = root.querySelectorAll('.dnx-testi-slide');
+  var dots = root.querySelectorAll('.dnx-testi-dot');
+  var current = 0;
+  var total = slides.length;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var timer = null;
+
+  function show(i) {
+    slides[current].classList.remove('is-active');
+    dots[current].classList.remove('is-active');
+    dots[current].setAttribute('aria-selected', 'false');
+    current = (i + total) % total;
+    slides[current].classList.add('is-active');
+    dots[current].classList.add('is-active');
+    dots[current].setAttribute('aria-selected', 'true');
+  }
+
+  function next() { show(current + 1); }
+
+  function start() {
+    if (reduceMotion) { return; }
+    stop();
+    timer = setInterval(next, 5000);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      show(parseInt(dot.getAttribute('data-i'), 10));
+      start();
+    });
+  });
+
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', start);
+
+  start();
+})();
+</script>
